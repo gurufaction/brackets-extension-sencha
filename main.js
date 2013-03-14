@@ -13,6 +13,7 @@ define(function (require, exports, module) {
         ProjectManager  = brackets.getModule("project/ProjectManager"),
         ProjectDialogTemplate  = require('text!htmlContent/wizard-dialog.html'),
         ModelDialogTemplate     = require('text!htmlContent/model-dialog.html'),
+        FieldDialogTemplate     = require('text!htmlContent/field-dialog.html'),
         ModelTemplate           = require('text!templates/model.tpl'),
         ViewTemplate            = require('text!templates/view.tpl'),
         ControllerTemplate      = require('text!templates/controller.tpl'),
@@ -27,7 +28,7 @@ define(function (require, exports, module) {
     // Function to run when the menu item is clicked
     function openNewProjectDialog() {
         
-        var $dlg, promise, $name, $namespace;
+        var $dlg, promise, $name, $namespace, $defaultView, $defaultController;
         
         promise = Dialogs.showModalDialogUsingTemplate(Mustache.render(ProjectDialogTemplate, Strings), "Sencha Project")
             .done(function (id) {
@@ -83,6 +84,8 @@ define(function (require, exports, module) {
         $dlg = $(".project-dialog.instance");
         $name = $dlg.find(".project-name");
         $namespace = $dlg.find(".project-namespace");
+        $defaultController = $dlg.find(".project-default-controller");
+        $defaultView = $dlg.find(".project-default-view");
         
     }
     
@@ -132,7 +135,7 @@ define(function (require, exports, module) {
     }
     
     function generateNewView() {
-        var $dlg, promise, $name;
+        var $dlg, promise, $name, fieldDlgPromise;
         
         promise = Dialogs.showModalDialogUsingTemplate(Mustache.render(ModelDialogTemplate, Strings), "Sencha View Generator")
             .done(function (id) {
@@ -164,12 +167,23 @@ define(function (require, exports, module) {
         $name = $dlg.find(".model-name");
     }
     
-    function generateNewModel() {
+    function generateNewModel(modelName, fields) {
 
         var $dlg, promise, $name;
+        var templateVars = $.extend({
+            "FIELD" :   "ADD FIELD",
+            "OK"    :   "DONE",
+            "CANCEL":   "CANCEL"
+        });
         
-        promise = Dialogs.showModalDialogUsingTemplate(Mustache.render(ModelDialogTemplate, Strings), "Sencha Model Generator")
+        if (fields === undefined) {
+            fields = new Array();
+        }
+        console.log(modelName);
+        console.log(fields);
+        promise = Dialogs.showModalDialogUsingTemplate(Mustache.render(ModelDialogTemplate, templateVars), "Sencha Model Generator")
             .done(function (id) {
+                console.log(id);
                 if (id === Dialogs.DIALOG_BTN_OK) {
                     if (_isValidName($name.val())) {
                         var projectDir = ProjectManager.getProjectRoot();
@@ -178,7 +192,7 @@ define(function (require, exports, module) {
                                 var appVars = JSON.parse(rawText);
                                 var path = _convertToPath($name.val());
                                 var templateVars = $.extend({
-                                    "MODEL_NAME"   :   path.filename
+                                    "MODEL_NAME"    :   path.filename
                                 }, appVars);
                                 createFile("app/model/" + path.rootDir + "/" + path.filename + ".js", ModelTemplate, templateVars);
                             }).fail(function (err) {
@@ -191,11 +205,31 @@ define(function (require, exports, module) {
                     } else {
                         console.log("Invalid Name: " + $name.val());
                     }
+                } else if (id === "add_field") {
+                    var fieldDlg, fieldName, fieldType;
+                    
+                    var fieldPromise = Dialogs.showModalDialogUsingTemplate(Mustache.render(FieldDialogTemplate, Strings), "Add Field")
+                        .done(function (id) {
+                            if (id === Dialogs.DIALOG_BTN_OK) {
+                                var field = {};
+                                field.name = fieldName.val();
+                                field.type = fieldName.val();
+                                fields.push(field);
+                                generateNewModel($name.val(), fields);
+                            }
+                        });
+                    
+                    fieldDlg = $(".field-dialog.instance");
+                    fieldName = fieldDlg.find("field-name");
+                    fieldType = fieldDlg.find("field-type");
                 }
             });
         
         $dlg = $(".model-dialog.instance");
         $name = $dlg.find(".model-name");
+        if (modelName) {
+            $name.val(modelName);
+        }
     }
     
     function generateNewController() {
