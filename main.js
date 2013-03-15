@@ -93,7 +93,7 @@ define(function (require, exports, module) {
         var regEx = /"^[_a-zA-Z]([_a-zA-Z0-9])*([\\.][_a-zA-Z]([_a-zA-Z0-9])*)*$"/;
         var result = name.match(regEx, name);
         console.log(result + ":" + name);
-        return false;
+        return true;
     }
     
     function _getFilename(path) {
@@ -119,7 +119,7 @@ define(function (require, exports, module) {
         // Get Project Root Directory
         var projectDir = ProjectManager.getProjectRoot();
         console.log(rootDir + ":" + filename + ":" + filePath);
-        projectDir.getDirectory(rootDir, {create: true, exclusive: false},
+        projectDir.getDirectory(rootDir, {create: true},
             function (dir) {
                 console.log(dir);
                 var file = new NativeFileSystem.FileEntry(dir.fullPath + filename, true, NativeFileSystem.FileSystem);
@@ -142,6 +142,7 @@ define(function (require, exports, module) {
                 if (id === Dialogs.DIALOG_BTN_OK) {
                     if (_isValidName($name.val())) {
                         var projectDir = ProjectManager.getProjectRoot();
+                        console.log(projectDir);
                         projectDir.getFile("project.json", function (fileEntry) {
                             FileUtils.readAsText(fileEntry).done(function (rawText, readTimestamp) {
                                 var appVars = JSON.parse(rawText);
@@ -173,12 +174,10 @@ define(function (require, exports, module) {
         var templateVars = $.extend({
             "FIELD" :   "ADD FIELD",
             "OK"    :   "DONE",
-            "CANCEL":   "CANCEL"
+            "CANCEL":   "CANCEL",
+            "FIELDS":   fields
         });
-        
-        if (fields === undefined) {
-            fields = new Array();
-        }
+
         console.log(modelName);
         console.log(fields);
         promise = Dialogs.showModalDialogUsingTemplate(Mustache.render(ModelDialogTemplate, templateVars), "Sencha Model Generator")
@@ -187,12 +186,14 @@ define(function (require, exports, module) {
                 if (id === Dialogs.DIALOG_BTN_OK) {
                     if (_isValidName($name.val())) {
                         var projectDir = ProjectManager.getProjectRoot();
-                        projectDir.getFile("project.json", function (fileEntry) {
+                        console.log(projectDir);
+                        projectDir.getFile("project.json", {}, function (fileEntry) {
                             FileUtils.readAsText(fileEntry).done(function (rawText, readTimestamp) {
                                 var appVars = JSON.parse(rawText);
                                 var path = _convertToPath($name.val());
                                 var templateVars = $.extend({
-                                    "MODEL_NAME"    :   path.filename
+                                    "MODEL_NAME"    :   path.filename,
+                                    "FIELDS"        :   fields
                                 }, appVars);
                                 createFile("app/model/" + path.rootDir + "/" + path.filename + ".js", ModelTemplate, templateVars);
                             }).fail(function (err) {
@@ -212,21 +213,33 @@ define(function (require, exports, module) {
                         .done(function (id) {
                             if (id === Dialogs.DIALOG_BTN_OK) {
                                 var field = {};
-                                field.name = fieldName.val();
-                                field.type = fieldName.val();
+                                field.NAME = fieldName.val();
+                                field.TYPE = fieldType.val();
+                                field.LAST = true;
+                                
+                                if (fields === undefined) {
+                                    fields = [];
+                                }
+                                var x;
+                                for (x = 0; x < fields.length; x++) {
+                                    fields[x].LAST = false;
+                                }
+                                
                                 fields.push(field);
                                 generateNewModel($name.val(), fields);
                             }
                         });
                     
                     fieldDlg = $(".field-dialog.instance");
-                    fieldName = fieldDlg.find("field-name");
-                    fieldType = fieldDlg.find("field-type");
+                    fieldName = fieldDlg.find(".field-name");
+                    fieldType = fieldDlg.find(".field-type");
+                    fieldName.focus();
                 }
             });
         
         $dlg = $(".model-dialog.instance");
         $name = $dlg.find(".model-name");
+        $name.focus();
         if (modelName) {
             $name.val(modelName);
         }
@@ -241,7 +254,7 @@ define(function (require, exports, module) {
                 if (id === Dialogs.DIALOG_BTN_OK) {
                     if (_isValidName($name.val())) {
                         var projectDir = ProjectManager.getProjectRoot();
-                        projectDir.getFile("project.json", function (fileEntry) {
+                        projectDir.getFile("project.json", {create: false}, function (fileEntry) {
                             FileUtils.readAsText(fileEntry).done(function (rawText, readTimestamp) {
                                 var appVars = JSON.parse(rawText);
                                 var path = _convertToPath($name.val());

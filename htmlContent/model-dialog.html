@@ -4,10 +4,13 @@
     </div>
     <div class="modal-body">
         <lable>Name </lable><input type="text" class="model-name"/><br>
+        {{#FIELDS}}
+        <input type="text" value="{{NAME}}"/><input type="text" value="{{TYPE}}"/><br>
+        {{/FIELDS}}
     </div>
     <div class="modal-footer">
         <a href="#" class="dialog-button btn left" data-button-id="cancel">{{CANCEL}}</a>
-        <a href="#" class="dialog-button btn" data-button-id="add_field">{{FIELD}}</a>
-        <a href="#" class="dialog-button btn primary" data-button-id="ok">{{OK}}</a>
+        <a href="#" class="dialog-button btn primary" data-button-id="add_field">{{FIELD}}</a>
+        <a href="#" class="dialog-button btn " data-button-id="ok">{{OK}}</a>
     </div>
 </div>

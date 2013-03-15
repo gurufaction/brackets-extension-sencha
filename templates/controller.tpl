@@ -7,7 +7,13 @@ Ext.define('{{PROJECT_NAMESPACE}}.controller.{{CONTROLLER_NAME}}', {
         {{/VIEWS}}
     ],
     
-    init: function () {
-        console.log('Initialized! This happens before the Application launch function is called');
+    init: function() {
+        this.control({
+            {{#VIEWS}}
+            '{{ALIAS}}': {
+                {{EVENT_NAME}}: this.{{EVENT_METHOD}}{{^LAST}},{{/LAST}}
+            }{{^LAST}},{{/LAST}}
+            {{/VIEWS}}
+        });
     }
 });
