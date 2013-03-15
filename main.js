@@ -25,70 +25,6 @@ define(function (require, exports, module) {
 
     ExtensionUtils.loadStyleSheet(module, "dialog.css");
     
-    // Function to run when the menu item is clicked
-    function openNewProjectDialog() {
-        
-        var $dlg, promise, $name, $namespace, $defaultView, $defaultController;
-        
-        promise = Dialogs.showModalDialogUsingTemplate(Mustache.render(ProjectDialogTemplate, Strings), "Sencha Project")
-            .done(function (id) {
-                if (id === Dialogs.DIALOG_BTN_OK) {
-                    
-                    var projectDir = ProjectManager.getProjectRoot();
-                    
-                    var projectVars = $.extend({
-                        PROJECT_NAME        :   $name.val().substr($name.val().lastIndexOf(".") + 1),
-                        PROJECT_NAMESPACE   :   $name.val(),
-                        SDK_LOCATION        :   "ext"
-                    });
-                    
-                    var applicationVars = $.extend({
-                        DEFAULT_VIEW        : "mainDefault",
-                        CONTROLLERS         : [
-                            { "NAME" : "main.Default", "LAST" : true }
-                        ]
-                    }, projectVars);
-                    
-                    createFile("app/app.js", AppTemplate, applicationVars);
-                    
-                    // Create application directory structure
-                    projectDir.getDirectory("app/model", {create: true});
-                    projectDir.getDirectory("app/view", {create: true});
-                    projectDir.getDirectory("app/controller", {create: true});
-                    projectDir.getDirectory("app/store", {create: true});
-                    
-                    createFile("project.json", ProjectTemplate, projectVars);
-                    createFile("index.html", IndexTemplate, projectVars);
-                    
-                    // Create Default View
-                    var viewVars = $.extend({
-                        "VIEW_NAME"     : "main.Default",
-                        "VIEW_ALIAS"    : "mainDefault",
-                        "VIEW_TITLE"    : projectVars.PROJECT_NAME
-                    }, projectVars);
-                    
-                    createFile("app/view/main/Default.js", ViewTemplate, viewVars);
-                    
-                    // Create Default Controller
-                    var controllerVars = $.extend({
-                        "CONTROLLER_NAME"     : "main.Default",
-                        "VIEWS"    : [
-                            { "NAME" : "main.Default", "LAST" : true }
-                        ]
-                    }, projectVars);
-                    
-                    createFile("app/controller/main/Default.js", ControllerTemplate, controllerVars);
-                }
-            });
-        
-        $dlg = $(".project-dialog.instance");
-        $name = $dlg.find(".project-name");
-        $namespace = $dlg.find(".project-namespace");
-        $defaultController = $dlg.find(".project-default-controller");
-        $defaultView = $dlg.find(".project-default-view");
-        
-    }
-    
     function _isValidName(name) {
         var regEx = /"^[_a-zA-Z]([_a-zA-Z0-9])*([\\.][_a-zA-Z]([_a-zA-Z0-9])*)*$"/;
         var result = name.match(regEx, name);
@@ -113,13 +49,16 @@ define(function (require, exports, module) {
         };
     }
 
-    function createFile(filePath, template, entityVars) {
+    function createFile(filePath, template, entityVars, options) {
+        if (options === undefined) {
+            options = {create : true, exclusive: false};
+        }
         var rootDir = _getRootDir(filePath);
         var filename = _getFilename(filePath);
         // Get Project Root Directory
         var projectDir = ProjectManager.getProjectRoot();
-        console.log(rootDir + ":" + filename + ":" + filePath);
-        projectDir.getDirectory(rootDir, {create: true},
+        console.log(rootDir + ":" + filename + ":" + filePath + ":" + options);
+        projectDir.getDirectory(rootDir, options,
             function (dir) {
                 console.log(dir);
                 var file = new NativeFileSystem.FileEntry(dir.fullPath + filename, true, NativeFileSystem.FileSystem);
@@ -130,8 +69,81 @@ define(function (require, exports, module) {
                     console.log("Error writing text: " + file.fullPath);
                 });
             }, function (err) {
-                console.log(err);
+                console.log(err.name + ":" + rootDir);
             });
+    }
+    
+    // Function to run when the menu item is clicked
+    function openNewProjectDialog() {
+        
+        var $dlg, promise, $name, $namespace, $defaultView, $defaultController;
+        
+        promise = Dialogs.showModalDialogUsingTemplate(Mustache.render(ProjectDialogTemplate, Strings), "Sencha Project")
+            .done(function (id) {
+                if (id === Dialogs.DIALOG_BTN_OK) {
+                    
+                    var projectDir = ProjectManager.getProjectRoot();
+                    
+                    var projectVars = $.extend({
+                        PROJECT_NAME        :   $name.val().substr($name.val().lastIndexOf(".") + 1),
+                        PROJECT_NAMESPACE   :   $name.val(),
+                        SRC_DIR             :   "src",
+                        LIB_DIR             :   "lib",
+                        SDK_DIR             :   "ext",
+                        CLIENT_DIR          :   "client",
+                        SERVER_DIR          :   "server"
+                    });
+                    
+                    var applicationVars = $.extend({
+                        DEFAULT_VIEW        : $defaultView.val().replace(".", ""),
+                        CONTROLLERS         : [
+                            {
+                                "NAME" : $defaultController.val(),
+                                "LAST" : true
+                            }
+                        ]
+                    }, projectVars);
+
+                    var CLIENT_PATH = projectVars.SRC_DIR + "/" + projectVars.CLIENT_DIR;
+                    createFile("project.json", ProjectTemplate, projectVars);
+                    createFile(CLIENT_PATH + "/index.html", IndexTemplate, projectVars);
+                    createFile(CLIENT_PATH + "/app/app.js", AppTemplate, applicationVars);
+                    // Create client-side application directory structure
+                    projectDir.getDirectory(CLIENT_PATH, {create: true});
+                    projectDir.getDirectory(CLIENT_PATH + "/app/model", {create: true});
+                    projectDir.getDirectory(CLIENT_PATH + "/app/view", {create: true});
+                    projectDir.getDirectory(CLIENT_PATH + "/app/controller", {create: true});
+                    projectDir.getDirectory(CLIENT_PATH + "/app/store", {create: true});
+                    
+                    
+                    // Create Default View
+                    var viewVars = $.extend({
+                        "NAME"     : $defaultView.val(),
+                        "ALIAS"    : $defaultView.val().replace(".", ""),
+                        "TITLE"    : projectVars.PROJECT_NAME
+                    }, projectVars);
+                    var viewPath = _convertToPath($defaultView.val());
+                    createFile(CLIENT_PATH + "/app/view/" + viewPath.fullPath + ".js", ViewTemplate, viewVars);
+                    
+                    // Create Default Controller
+                    var controllerVars = $.extend({
+                        "NAME"     : $defaultController.val(),
+                        "VIEWS"    : [
+                            { "NAME" : $defaultView.val(), "LAST" : true }
+                        ]
+                    }, projectVars);
+                    var ctrlPath = _convertToPath($defaultController.val());
+                    createFile(CLIENT_PATH + "/app/controller/" + ctrlPath.fullPath + ".js", ControllerTemplate, controllerVars);
+                }
+            });
+        
+        $dlg = $(".project-dialog.instance");
+        $name = $dlg.find(".project-name");
+        $name.focus();
+        $namespace = $dlg.find(".project-namespace");
+        $defaultController = $dlg.find(".project-default-controller");
+        $defaultView = $dlg.find(".project-default-view");
+        
     }
     
     function generateNewView() {
@@ -145,12 +157,13 @@ define(function (require, exports, module) {
                         console.log(projectDir);
                         projectDir.getFile("project.json", function (fileEntry) {
                             FileUtils.readAsText(fileEntry).done(function (rawText, readTimestamp) {
-                                var appVars = JSON.parse(rawText);
+                                var projectVars = JSON.parse(rawText);
+                                var CLIENT_PATH = projectVars.SRC_DIR + "/" + projectVars.CLIENT_DIR;
                                 var path = _convertToPath($name.val());
                                 var templateVars = $.extend({
-                                    "VIEW_NAME"   :   path.filename
-                                }, appVars);
-                                createFile("app/view/" + path.rootDir + "/" + path.filename + ".js", ViewTemplate, templateVars);
+                                    "VIEW"   :   path.filename
+                                }, projectVars);
+                                createFile(CLIENT_PATH + "/app/view/" + path.rootDir + "/" + path.filename + ".js", ViewTemplate, templateVars);
                             }).fail(function (err) {
                                 console.log("Error reading text: " + err.name);
                             });
@@ -186,16 +199,29 @@ define(function (require, exports, module) {
                 if (id === Dialogs.DIALOG_BTN_OK) {
                     if (_isValidName($name.val())) {
                         var projectDir = ProjectManager.getProjectRoot();
-                        console.log(projectDir);
+                        
                         projectDir.getFile("project.json", {}, function (fileEntry) {
                             FileUtils.readAsText(fileEntry).done(function (rawText, readTimestamp) {
-                                var appVars = JSON.parse(rawText);
+                                
+                                var projectVars = JSON.parse(rawText);
+                                var CLIENT_PATH = projectVars.SRC_DIR + "/" + projectVars.CLIENT_DIR;
+                                
                                 var path = _convertToPath($name.val());
+                                
+                                var model = {
+                                    "NAME"    : path.filename,
+                                    "FIELDS"  : fields
+                                };
+                                
                                 var templateVars = $.extend({
-                                    "MODEL_NAME"    :   path.filename,
-                                    "FIELDS"        :   fields
-                                }, appVars);
-                                createFile("app/model/" + path.rootDir + "/" + path.filename + ".js", ModelTemplate, templateVars);
+                                    "NAME"      : path.filename,
+                                    "FIELDS"    : fields,
+                                    "LAST"      : true
+                                }, projectVars);
+                                createFile(CLIENT_PATH + "/app/model/" + path.rootDir + "/" + path.filename + ".js", ModelTemplate, templateVars);
+                                // Update Project File
+                                projectVars.MODELS.push(model);
+                                createFile("project.json", ProjectTemplate, projectVars);
                             }).fail(function (err) {
                                 console.log("Error reading text: " + err.name);
                             });
@@ -256,12 +282,13 @@ define(function (require, exports, module) {
                         var projectDir = ProjectManager.getProjectRoot();
                         projectDir.getFile("project.json", {create: false}, function (fileEntry) {
                             FileUtils.readAsText(fileEntry).done(function (rawText, readTimestamp) {
-                                var appVars = JSON.parse(rawText);
+                                var projectVars = JSON.parse(rawText);
+                                var CLIENT_PATH = projectVars.SRC_DIR + "/" + projectVars.CLIENT_DIR;
                                 var path = _convertToPath($name.val());
                                 var templateVars = $.extend({
-                                    "CONTROLLER_NAME"   :   path.filename
-                                }, appVars);
-                                createFile("app/controller/" + path.rootDir + "/" + path.filename + ".js", ControllerTemplate, templateVars);
+                                    "NAME"   :   path.filename
+                                }, projectVars);
+                                createFile(CLIENT_PATH + "/app/controller/" + path.rootDir + "/" + path.filename + ".js", ControllerTemplate, templateVars);
                             }).fail(function (err) {
                                 console.log("Error reading text: " + err.name);
                             });

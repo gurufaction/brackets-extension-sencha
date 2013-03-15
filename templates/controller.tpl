@@ -1,4 +1,4 @@
-Ext.define('{{PROJECT_NAMESPACE}}.controller.{{CONTROLLER_NAME}}', {
+Ext.define('{{PROJECT_NAMESPACE}}.controller.{{NAME}}', {
     extend: 'Ext.app.Controller',
 
     views: [

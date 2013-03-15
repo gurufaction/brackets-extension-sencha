@@ -1,9 +1,9 @@
-Ext.define('{{PROJECT_NAMESPACE}}.view.{{VIEW_NAME}}', {
+Ext.define('{{PROJECT_NAMESPACE}}.view.{{NAME}}', {
     extend  : 'Ext.Panel',
-    alias   : 'widget.{{VIEW_ALIAS}}',
+    alias   : 'widget.{{ALIAS}}',
 
-    title   : '{{VIEW_TITLE}}',
-    html    : '{{VIEW_HTML}}',
+    title   : '{{TITLE}}',
+    html    : '{{HTML}}',
 
     initComponent: function () {
         

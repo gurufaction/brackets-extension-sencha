@@ -1,4 +1,4 @@
-Ext.define('{{PROJECT_NAMESPACE}}.model.{{MODEL_NAME}}', {
+Ext.define('{{PROJECT_NAMESPACE}}.model.{{NAME}}', {
     extend: 'Ext.data.Model',
     fields: [
         {{#FIELDS}}
