@@ -205,6 +205,7 @@ define(function (require, exports, module) {
                                 
                                 var projectVars = JSON.parse(rawText);
                                 var CLIENT_PATH = projectVars.SRC_DIR + "/" + projectVars.CLIENT_DIR;
+                                var SERVER_PATH = projectVars.SRC_DIR + "/" + projectVars.SERVER_DIR;
                                 
                                 var path = _convertToPath($name.val());
                                 
@@ -219,6 +220,8 @@ define(function (require, exports, module) {
                                     "LAST"      : true
                                 }, projectVars);
                                 createFile(CLIENT_PATH + "/app/model/" + path.rootDir + "/" + path.filename + ".js", ModelTemplate, templateVars);
+                                // Generate ORM model
+                                //createFile(SERVER_PATH + "/orm/model/" + path.filename + ".js", OrmModelTemplate, templateVars);
                                 // Update Project File
                                 projectVars.MODELS.push(model);
                                 createFile("project.json", ProjectTemplate, projectVars);

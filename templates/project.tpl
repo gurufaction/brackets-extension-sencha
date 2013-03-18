@@ -12,10 +12,10 @@
             "NAME"    :   "{{NAME}}",
             "FIELDS"  :   [
                 {{#FIELDS}}
-                { NAME: "{{NAME}}", TYPE: "{{TYPE}}"}{{^LAST}},{{/LAST}}
+                { "NAME": "{{NAME}}", "TYPE": "{{TYPE}}"}{{^LAST}},{{/LAST}}
                 {{/FIELDS}}
             ]
-        }
+        }{{^LAST}},{{/LAST}}
     {{/MODELS}}
     ]
 }
