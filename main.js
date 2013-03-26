@@ -16,6 +16,7 @@ define(function (require, exports, module) {
         FieldDialogTemplate     = require('text!htmlContent/field-dialog.html'),
         ModelTemplate           = require('text!templates/model.tpl'),
         ViewTemplate            = require('text!templates/view.tpl'),
+        FormTemplate            = require('text!templates/form.tpl'),
         ControllerTemplate      = require('text!templates/controller.tpl'),
         AppTemplate             = require('text!templates/app.tpl'),
         IndexTemplate           = require('text!templates/index.tpl'),
@@ -163,7 +164,7 @@ define(function (require, exports, module) {
                                 var templateVars = $.extend({
                                     "VIEW"   :   path.filename
                                 }, projectVars);
-                                createFile(CLIENT_PATH + "/app/view/" + path.rootDir + "/" + path.filename + ".js", ViewTemplate, templateVars);
+                                createFile(CLIENT_PATH + "/app/view/" + path.rootDir + "/" + path.filename + ".js", FormTemplate, templateVars);
                             }).fail(function (err) {
                                 console.log("Error reading text: " + err.name);
                             });
@@ -217,12 +218,14 @@ define(function (require, exports, module) {
                                 var templateVars = $.extend({
                                     "NAME"      : path.filename,
                                     "FIELDS"    : fields,
-                                    "LAST"      : true
+                                    "LAST"      : true,
+                                    "PROXY"     : {
+                                        "TYPE"  : "rest",
+                                        "URL"   : path.filename.toLowerCase()
+                                    }
                                 }, projectVars);
+                                
                                 createFile(CLIENT_PATH + "/app/model/" + path.rootDir + "/" + path.filename + ".js", ModelTemplate, templateVars);
-                                // Generate ORM model
-                                //createFile(SERVER_PATH + "/orm/model/" + path.filename + ".js", OrmModelTemplate, templateVars);
-                                // Update Project File
                                 projectVars.MODELS.push(model);
                                 createFile("project.json", ProjectTemplate, projectVars);
                             }).fail(function (err) {

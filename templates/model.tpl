@@ -4,5 +4,18 @@ Ext.define('{{PROJECT_NAMESPACE}}.model.{{NAME}}', {
         {{#FIELDS}}
         { name: '{{NAME}}', type: '{{TYPE}}'}{{^LAST}},{{/LAST}}
         {{/FIELDS}}
+    ],
+    
+    {{#HAS_MANY}}
+    hasMany: [
+        '{{NAME}}'{{^LAST}},{{/LAST}}
     ]
+    {{/HAS_MANY}}
+    
+    {{#PROXY}}
+    proxy: {
+        type: '{{TYPE}}',
+        url : '/{{URL}}'
+    }
+    {{/PROXY}}
 });

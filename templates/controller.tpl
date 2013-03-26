@@ -8,6 +8,7 @@ Ext.define('{{PROJECT_NAMESPACE}}.controller.{{NAME}}', {
     ],
     
     init: function() {
+        {{#CONTROL}}
         this.control({
             {{#VIEWS}}
             '{{ALIAS}}': {
@@ -15,5 +16,6 @@ Ext.define('{{PROJECT_NAMESPACE}}.controller.{{NAME}}', {
             }{{^LAST}},{{/LAST}}
             {{/VIEWS}}
         });
+        {{/CONTROL}}
     }
 });
