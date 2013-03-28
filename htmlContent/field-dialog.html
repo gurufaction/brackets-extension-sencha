@@ -3,15 +3,25 @@
         <h1 class="dialog-title"></h1>
     </div>
     <div class="modal-body">
-        <lable>Name:</lable><input type="text" class="field-name"/>
-        <select class="field-type">
-            <option value="auto">auto</option>
-            <option value="int">int</option>
-            <option value="string">string</option>
-            <option value="boolean">boolean</option>
-            <option value="float">float</option>
-            <option value="date">date</option>
-        </select>
+        <table>
+            <tr>
+                <td>Name</td>
+                <td><input type="text" class="field-name"/></td>
+            </tr>
+            <tr>
+                <td>Type</td>
+                <td>
+                <select class="field-type">
+                    <option value="auto">auto</option>
+                    <option value="int">int</option>
+                    <option value="string">string</option>
+                    <option value="boolean">boolean</option>
+                    <option value="float">float</option>
+                    <option value="date">date</option>
+                </select>
+                </td>
+            </tr>
+        </table>
     </div>
     <div class="modal-footer">
         <a href="#" class="dialog-button btn left" data-button-id="cancel">{{CANCEL}}</a>

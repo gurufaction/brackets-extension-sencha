@@ -1,0 +1,11 @@
+{
+    "PROJECT_NAME"      :   "",
+    "PROJECT_NAMESPACE" :   "",
+    "SDK_DIR"           :   "ext",
+    "SRC_DIR"           :   "src",
+    "LIB_DIR"           :   "lib",
+    "CLIENT_DIR"        :   "client",
+    "SERVER_DIR"        :   "server",
+    "MODELS"            :   [
+    ]
+}

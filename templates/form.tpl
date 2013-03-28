@@ -1,3 +1,5 @@
+/*global Ext */
+
 Ext.define('{{PROJECT_NAMESPACE}}.view.{{NAME}}', {
     extend  : 'Ext.Panel',
     alias   : 'widget.{{ALIAS}}',
@@ -5,6 +7,8 @@ Ext.define('{{PROJECT_NAMESPACE}}.view.{{NAME}}', {
     html    : '{{HTML}}',
 
     initComponent: function () {
+        "use strict";
+        
         this.items = [
             {{#FIELDS}}
             {

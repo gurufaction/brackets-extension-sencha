@@ -3,10 +3,29 @@
         <h1 class="dialog-title"></h1>
     </div>
     <div class="modal-body">
-        <lable>Name </lable><input type="text" class="model-name"/><br>
-        {{#FIELDS}}
-        <input type="text" value="{{NAME}}"/><input type="text" value="{{TYPE}}"/><br>
-        {{/FIELDS}}
+        <table>
+            <tr>
+                <td>Name</td>
+                <td><input type="text" class="model-name"/></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <table>
+                        <tr>
+                            <td>Column Name</td>
+                            <td>Column Type</td>
+                        </tr>
+                        {{#FIELDS}}
+                        <tr>
+                            <td><input type="text" value="{{NAME}}"/></td>
+                            <td><input type="text" value="{{TYPE}}"/></td>
+                        </tr>
+                        {{/FIELDS}}
+                    </table>
+                </td>
+            </tr>      
+        </table>
     </div>
     <div class="modal-footer">
         <a href="#" class="dialog-button btn left" data-button-id="cancel">{{CANCEL}}</a>

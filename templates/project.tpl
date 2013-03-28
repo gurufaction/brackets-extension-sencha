@@ -9,8 +9,9 @@
     "MODELS"            :   [
     {{#MODELS}}
         {
-            "NAME"    :   "{{NAME}}",
-            "FIELDS"  :   [
+            "NAME"      :   "{{NAME}}",
+            "FULL_NAME" :   "{{FULL_NAME}}",
+            "FIELDS"    :   [
                 {{#FIELDS}}
                 { "NAME": "{{NAME}}", "TYPE": "{{TYPE}}"}{{^LAST}},{{/LAST}}
                 {{/FIELDS}}

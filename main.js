@@ -15,6 +15,7 @@ define(function (require, exports, module) {
         ModelDialogTemplate     = require('text!htmlContent/model-dialog.html'),
         FieldDialogTemplate     = require('text!htmlContent/field-dialog.html'),
         ModelTemplate           = require('text!templates/model.tpl'),
+        StoreTemplate           = require('text!templates/store.tpl'),
         ViewTemplate            = require('text!templates/view.tpl'),
         FormTemplate            = require('text!templates/form.tpl'),
         ControllerTemplate      = require('text!templates/controller.tpl'),
@@ -212,21 +213,24 @@ define(function (require, exports, module) {
                                 
                                 var model = {
                                     "NAME"    : path.filename,
-                                    "FIELDS"  : fields
-                                };
-                                
-                                var templateVars = $.extend({
-                                    "NAME"      : path.filename,
-                                    "FIELDS"    : fields,
+                                    "FULL_NAME" : $name.val(),
+                                    "FIELDS"  : fields,
                                     "LAST"      : true,
                                     "PROXY"     : {
                                         "TYPE"  : "rest",
                                         "URL"   : path.filename.toLowerCase()
                                     }
-                                }, projectVars);
+                                };
+                                
+                                var templateVars = $.extend(model, projectVars);
                                 
                                 createFile(CLIENT_PATH + "/app/model/" + path.rootDir + "/" + path.filename + ".js", ModelTemplate, templateVars);
+                                createFile(CLIENT_PATH + "/app/store/" + path.rootDir + "/" + path.filename + ".js", StoreTemplate, templateVars);
                                 projectVars.MODELS.push(model);
+                                var m;
+                                for (m in projectVars.MODELS) {
+                                    projectVars.MODELS[m].FIELDS[projectVars.MODELS[m].FIELDS.length - 1].LAST = true;
+                                }
                                 createFile("project.json", ProjectTemplate, projectVars);
                             }).fail(function (err) {
                                 console.log("Error reading text: " + err.name);

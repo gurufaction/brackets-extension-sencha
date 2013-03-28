@@ -1,3 +1,5 @@
+/*global Ext */
+
 Ext.define('{{PROJECT_NAMESPACE}}.model.{{NAME}}', {
     extend: 'Ext.data.Model',
     fields: [

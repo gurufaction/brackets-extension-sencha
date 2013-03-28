@@ -1,6 +1,20 @@
+/*global Ext */
+
 Ext.define('{{PROJECT_NAMESPACE}}.controller.{{NAME}}', {
     extend: 'Ext.app.Controller',
 
+    stores: [
+        {{#STORES}}
+        '{{NAME}}'{{^LAST}},{{/LAST}}
+        {{/STORES}}
+    ],
+    
+    models: [
+        {{#MODELS}}
+        '{{NAME}}'{{^LAST}},{{/LAST}}
+        {{/MODLES}}
+    ],
+    
     views: [
         {{#VIEWS}}
         '{{NAME}}'{{^LAST}},{{/LAST}}
@@ -8,6 +22,8 @@ Ext.define('{{PROJECT_NAMESPACE}}.controller.{{NAME}}', {
     ],
     
     init: function() {
+        "use strict";
+        
         {{#CONTROL}}
         this.control({
             {{#VIEWS}}
